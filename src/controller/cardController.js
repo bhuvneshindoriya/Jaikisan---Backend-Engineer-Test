@@ -5,14 +5,19 @@ exports.createCard = async function(req,res){
     let data = req.body
     let {cardNumber,cardType,customerName,status,vision,customerID}=data
    
+    if(!customerName) return res.status(400).send({status:false,message:"Please enter customerName"})
+    if(!cardType) return res.status(400).send({status:false,message:"Please enter cardType"})
+    if(!customerID) return res.status(400).send({status:false,message:"Please enter customerID"})
     if(!isValidName(customerName))return res.status(400).send({status:false,message:"Please provide only alpha value in customerName"})
     if(!isValidateCardType(cardType)) return res.status(400).send({status:false,message:"Please provide valid cardType"})
     if(status){
         if(!isValidateStatus(status)) return res.status(400).send({status:false,message:"Please provide valid status"})
     }
-
+    let checkCustomerId = await cardModel.findOne({customerID:customerID})
+    if(!checkCustomerId) return res.status(400).send({status:false,message:"CustomerId is not present in db"})
+    let cardlen= await cardModel.find()
     let obj ={
-        cardNumber:cardNumber,
+        cardNumber:`C00${++cardlen.length}`,
         cardType:cardType,
         customerName:customerName,
         customerID:customerID
